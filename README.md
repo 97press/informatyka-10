@@ -16,7 +16,6 @@
 |---|---|
 | `pryklady/` | приклади з посібника: запускайте й експериментуйте, змінюйте що завгодно |
 | `praktychni/` | заготовки практичних робіт: пишіть розв'язок у `taskN.cpp` і перевіряйте на тестах |
-| `colab/` | ті самі приклади в Google Colab — для роботи з телефона або без CLion |
 | `common/` | службові файли курсу, не змінюйте їх |
 
 ## Практичні роботи й тести
@@ -31,11 +30,11 @@
 
 ## Зошити Colab
 
-Потрібен лише обліковий запис Google. Щоб зберегти свої зміни, зробіть копію: **Файл → Зберегти копію на Диску**.
+Ті самі приклади з посібника — для роботи з телефона або без CLion. Потрібен лише обліковий запис Google. Щоб зберегти свої зміни, зробіть копію: **Файл → Зберегти копію на Диску**.
 
 | Розділ | Тема | |
 |---|---|---|
-| 1 | Перша програма: середовище, введення й виведення | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/97press/informatyka-10/blob/main/colab/rozdil-01.ipynb) |
+| 1 | Перша програма: середовище, введення й виведення | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/97press/informatyka-10/blob/colab/rozdil-01.ipynb) |
 
 ## Ліцензія
 
