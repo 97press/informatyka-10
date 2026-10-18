@@ -1,6 +1,6 @@
 # Пакує розв'язки практичної для здавання: zdacha/prNN_prizvyshche_imia.zip
 # з файлами taskN_prizvyshche_imia.cpp. Прізвище та ім'я — з файлу student.txt
-# у корені репозиторію (кирилицею: «Шевченко Олена»). Цей файл не потрібно змінювати.
+# у корені репозиторію (кирилицею: «Шевченко Олена» замість заготовки «Прізвище Ім'я»). Цей файл не потрібно змінювати.
 # Виклик: cmake -DROOT=… -DPR=pr01 -DSRC=… -P zdaty.cmake
 
 cmake_minimum_required(VERSION 3.20)   # політики: порожні елементи списку не відкидаються (потрібно для Ь → "")
@@ -15,6 +15,9 @@ if(hex MATCHES "^efbbbf")                # Блокнот Windows додає н�
     string(SUBSTRING "${raw}" 3 -1 raw)
 endif()
 string(STRIP "${raw}" raw)
+if(raw STREQUAL "Прізвище Ім'я")
+    message(FATAL_ERROR "Відкрийте файл student.txt і впишіть своє прізвище та ім'я замість «Прізвище Ім'я», наприклад: Шевченко Олена")
+endif()
 string(REGEX REPLACE "[ \t\r\n]+" ";" words "${raw}")
 list(LENGTH words count)
 if(count LESS 2)
