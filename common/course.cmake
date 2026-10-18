@@ -30,3 +30,11 @@ function(course_check label)
         COMMAND ${CMAKE_CTEST_COMMAND} -L "^${label}$" --output-on-failure
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS ${ARGN} USES_TERMINAL VERBATIM)
 endfunction()
+
+# Ціль zdaty_<практична>: пакує taskN.cpp у zdacha/prNN_prizvyshche_imia.zip (див. zdaty.cmake).
+function(course_zdaty label)
+    add_custom_target(zdaty_${label}
+        COMMAND ${CMAKE_COMMAND} -DROOT=${CMAKE_SOURCE_DIR} -DPR=${label} -DSRC=${CMAKE_CURRENT_SOURCE_DIR}
+                -P ${COURSE_COMMON}/zdaty.cmake
+        USES_TERMINAL VERBATIM)
+endfunction()

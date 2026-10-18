@@ -1,0 +1,92 @@
+# Пакує розв'язки практичної для здавання: zdacha/prNN_prizvyshche_imia.zip
+# з файлами taskN_prizvyshche_imia.cpp. Прізвище та ім'я — з файлу student.txt
+# у корені репозиторію (кирилицею: «Шевченко Олена»). Цей файл не потрібно змінювати.
+# Виклик: cmake -DROOT=… -DPR=pr01 -DSRC=… -P zdaty.cmake
+
+cmake_minimum_required(VERSION 3.20)   # політики: порожні елементи списку не відкидаються (потрібно для Ь → "")
+
+set(student ${ROOT}/student.txt)
+if(NOT EXISTS ${student})
+    message(FATAL_ERROR "Створіть у корені репозиторію файл student.txt і впишіть у нього прізвище та ім'я, наприклад: Шевченко Олена")
+endif()
+file(READ ${student} raw)
+string(HEX "${raw}" hex)
+if(hex MATCHES "^efbbbf")                # Блокнот Windows додає на початок BOM
+    string(SUBSTRING "${raw}" 3 -1 raw)
+endif()
+string(STRIP "${raw}" raw)
+string(REGEX REPLACE "[ \t\r\n]+" ";" words "${raw}")
+list(LENGTH words count)
+if(count LESS 2)
+    message(FATAL_ERROR "У файлі student.txt мають бути прізвище та ім'я, наприклад: Шевченко Олена")
+endif()
+
+# Транслітерація за постановою КМУ № 55 від 27.01.2010.
+# Літери Є Ї Й Ю Я на початку слова пишуться інакше, ніж усередині.
+set(initial "Є;ye;є;ye;Ї;yi;ї;yi;Й;y;й;y;Ю;yu;ю;yu;Я;ya;я;ya")
+set(table "Зг;zgh;зг;zgh;ЗГ;zgh"
+          "А;a;а;a;Б;b;б;b;В;v;в;v;Г;h;г;h;Ґ;g;ґ;g;Д;d;д;d;Е;e;е;e;Є;ie;є;ie;Ж;zh;ж;zh"
+          "З;z;з;z;И;y;и;y;І;i;і;i;Ї;i;ї;i;Й;i;й;i;К;k;к;k;Л;l;л;l;М;m;м;m;Н;n;н;n"
+          "О;o;о;o;П;p;п;p;Р;r;р;r;С;s;с;s;Т;t;т;t;У;u;у;u;Ф;f;ф;f;Х;kh;х;kh;Ц;ts;ц;ts"
+          "Ч;ch;ч;ch;Ш;sh;ш;sh;Щ;shch;щ;shch;Ь;;ь;;Ю;iu;ю;iu;Я;ia;я;ia;';;’;;ʼ;")
+set(parts "")
+foreach(word ${words})
+    string(REPLACE "-" ";" pieces "${word}")   # подвійне прізвище: Ільченко-Мазур
+    set(done "")
+    foreach(piece ${pieces})
+        set(i 0)
+        list(LENGTH initial n)
+        while(i LESS n)
+            list(GET initial ${i} from)
+            math(EXPR j "${i} + 1")
+            list(GET initial ${j} to)
+            if(piece MATCHES "^${from}")
+                string(LENGTH "${from}" len)
+                string(SUBSTRING "${piece}" ${len} -1 rest)
+                set(piece "${to}${rest}")
+                break()
+            endif()
+            math(EXPR i "${i} + 2")
+        endwhile()
+        set(i 0)
+        list(LENGTH table n)
+        while(i LESS n)
+            list(GET table ${i} from)
+            math(EXPR j "${i} + 1")
+            if(j LESS n)
+                list(GET table ${j} to)
+            endif()
+            string(REPLACE "${from}" "${to}" piece "${piece}")
+            math(EXPR i "${i} + 2")
+        endwhile()
+        string(TOLOWER "${piece}" piece)
+        list(APPEND done "${piece}")
+    endforeach()
+    list(JOIN done "-" word)
+    list(APPEND parts "${word}")
+endforeach()
+list(JOIN parts "_" name)
+if(NOT name MATCHES "^[a-z0-9_-]+$")
+    message(FATAL_ERROR "Не вдалося перетворити «${raw}» на латиницю: вийшло «${name}». Перевірте файл student.txt — там мають бути лише українські літери.")
+endif()
+
+# Копіюємо taskN.cpp під новими іменами й пакуємо в zip.
+set(tmp ${ROOT}/zdacha/.${PR}_${name})
+file(REMOVE_RECURSE ${tmp})
+file(MAKE_DIRECTORY ${tmp})
+file(GLOB tasks ${SRC}/task*.cpp)
+set(names "")
+foreach(task ${tasks})
+    get_filename_component(stem ${task} NAME_WE)
+    configure_file(${task} ${tmp}/${stem}_${name}.cpp COPYONLY)
+    list(APPEND names ${stem}_${name}.cpp)
+    file(READ ${task} code)
+    if(code MATCHES "TODO")
+        message(NOTICE "Увага: у ${stem}.cpp залишився коментар TODO — можливо, задачу не завершено.")
+    endif()
+endforeach()
+set(zip ${ROOT}/zdacha/${PR}_${name}.zip)
+file(REMOVE ${zip})
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar cf ${zip} --format=zip ${names} WORKING_DIRECTORY ${tmp})
+file(REMOVE_RECURSE ${tmp})
+message(NOTICE "Готово: zdacha/${PR}_${name}.zip — прикріпіть цей файл до завдання.")
