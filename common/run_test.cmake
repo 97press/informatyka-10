@@ -1,6 +1,9 @@
 # Запускає програму EXE з даними IN і порівнює виведення з ANS.
 # Пробіли в кінці рядків і порожні рядки в кінці не враховуються.
-execute_process(COMMAND ${EXE} INPUT_FILE ${IN} OUTPUT_VARIABLE out RESULT_VARIABLE code TIMEOUT 5)
+# ENCODING UTF8: на Windows CMake інакше розкодовує виведення за кодовою сторінкою консолі (866/437),
+# і українські літери перетворюються на «╨ƒ╤Ç…», хоча програма вивела все правильно.
+execute_process(COMMAND ${EXE} INPUT_FILE ${IN} OUTPUT_VARIABLE out RESULT_VARIABLE code TIMEOUT 5
+                ENCODING UTF8)
 file(READ ${ANS} expected)
 foreach(var out expected)
     string(REPLACE "\r" "" ${var} "${${var}}")
